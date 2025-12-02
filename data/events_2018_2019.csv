@@ -1,0 +1,23 @@
+name,start_datetime,end_datetime,borough,category,notes
+St. Patrick's Day Parade 2018,2018-03-17 11:00:00,2018-03-17 17:00:00,Manhattan,Parade,Verdens ældste og største St. Patrick's parade langs Fifth Avenue.
+Tribeca Film Festival 2018,2018-04-18 00:00:00,2018-04-29 23:59:00,Manhattan,Culture,Årlig filmfestival grundlagt af Robert De Niro; forskellige lokationer i Lower Manhattan.
+Met Gala 2018,2018-05-07 18:00:00,2018-05-07 23:00:00,Manhattan,Culture,Tema: 'Heavenly Bodies: Fashion and the Catholic Imagination'. Afholdes på The Met Fifth Avenue.
+Governors Ball Music Festival 2018,2018-06-01 12:00:00,2018-06-03 23:00:00,Manhattan,Music,Stor musikfestival på Randall's Island Park. Headliners inkluderede Eminem og Jack White.
+NYC Pride March 2018,2018-06-24 12:00:00,2018-06-24 18:00:00,Manhattan,Parade,Starter i Chelsea og slutter i Greenwich Village. Stor menneskemængde.
+Macy's 4th of July Fireworks 2018,2018-07-04 21:00:00,2018-07-04 22:00:00,Manhattan/Queens/Brooklyn,Holiday,Fyrværkeri over East River.
+US Open Tennis 2018,2018-08-27 11:00:00,2018-09-09 20:00:00,Queens,Sports,Grand Slam turnering i USTA Billie Jean King National Tennis Center.
+New York Comic Con 2018,2018-10-04 10:00:00,2018-10-07 17:00:00,Manhattan,Convention,Afholdt i Javits Center. En af de største popkultur-messer i USA.
+NYC Marathon 2018,2018-11-04 08:00:00,2018-11-04 16:00:00,All,Sports,Løber gennem alle 5 bydele. Starter på Staten Island, slutter i Central Park.
+Macy's Thanksgiving Day Parade 2018,2018-11-22 09:00:00,2018-11-22 12:00:00,Manhattan,Parade,Går fra Central Park West til Herald Square.
+Times Square New Year's Eve 2019,2018-12-31 18:00:00,2019-01-01 00:15:00,Manhattan,Holiday,Ball Drop event på Times Square.
+St. Patrick's Day Parade 2019,2019-03-16 11:00:00,2019-03-16 17:00:00,Manhattan,Parade,Afholdt lørdag den 16. da den 17. var en søndag.
+Tribeca Film Festival 2019,2019-04-24 00:00:00,2019-05-05 23:59:00,Manhattan,Culture,Forskellige lokationer i Lower Manhattan.
+Met Gala 2019,2019-05-06 18:00:00,2019-05-06 23:00:00,Manhattan,Culture,Tema: 'Camp: Notes on Fashion'.
+Governors Ball Music Festival 2019,2019-05-31 12:00:00,2019-06-02 23:00:00,Manhattan,Music,Randall's Island Park. Nogle events blev forsinket/aflyst pga. hårdt vejr søndag aften.
+NYC Pride March 2019 (WorldPride),2019-06-30 12:00:00,2019-06-30 22:00:00,Manhattan,Parade,Ekstraordinær stor 'WorldPride' fejring og 50-året for Stonewall.
+Macy's 4th of July Fireworks 2019,2019-07-04 21:00:00,2019-07-04 22:00:00,Manhattan/Brooklyn,Holiday,Fyrværkeri nær Brooklyn Bridge.
+US Open Tennis 2019,2019-08-26 11:00:00,2019-09-08 20:00:00,Queens,Sports,USTA Billie Jean King National Tennis Center.
+New York Comic Con 2019,2019-10-03 10:00:00,2019-10-06 17:00:00,Manhattan,Convention,Javits Center.
+NYC Marathon 2019,2019-11-03 08:00:00,2019-11-03 16:00:00,All,Sports,Verdens største marathon målt på antal fuldførende deltagere.
+Macy's Thanksgiving Day Parade 2019,2019-11-28 09:00:00,2019-11-28 12:00:00,Manhattan,Parade,Kraftig vind truede med at grounde ballonerne, men de fik lov at flyve lavt.
+Times Square New Year's Eve 2020,2019-12-31 18:00:00,2020-01-01 00:15:00,Manhattan,Holiday,Ball Drop event.
