@@ -11,10 +11,40 @@ from sklearn.metrics import (
     mean_absolute_error, 
     mean_squared_error, 
     r2_score,
-    mean_absolute_percentage_error,
     median_absolute_error
 )
 from scipy import stats
+
+
+def smape(y_true, y_pred):
+    """
+    Calculate Symmetric Mean Absolute Percentage Error (sMAPE).
+    
+    sMAPE is bounded between 0% and 200%, and handles zero values better than MAPE.
+    Formula: 100 * mean(2 * |actual - predicted| / (|actual| + |predicted|))
+    
+    Parameters:
+    -----------
+    y_true : array-like
+        Actual values
+    y_pred : array-like
+        Predicted values
+    
+    Returns:
+    --------
+    float: sMAPE value (0-200%)
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    denominator = np.abs(y_true) + np.abs(y_pred)
+    # Avoid division by zero - if both actual and predicted are 0, error is 0
+    mask = denominator != 0
+    
+    smape_value = np.zeros_like(y_true, dtype=float)
+    smape_value[mask] = 2.0 * np.abs(y_true[mask] - y_pred[mask]) / denominator[mask]
+    
+    return 100 * np.mean(smape_value)
 
 
 def evaluate_basic_metrics(forecast_results_pickups, forecast_results_dropoffs, model_name="Model"):
@@ -105,10 +135,10 @@ def evaluate_extended_metrics(forecast_results_pickups, forecast_results_dropoff
         forecast_results_pickups['actual'],
         forecast_results_pickups['predicted']
     )
-    mape_pickups = mean_absolute_percentage_error(
+    smape_pickups = smape(
         forecast_results_pickups['actual'],
         forecast_results_pickups['predicted']
-    ) * 100
+    )
     median_ae_pickups = median_absolute_error(
         forecast_results_pickups['actual'],
         forecast_results_pickups['predicted']
@@ -122,7 +152,7 @@ def evaluate_extended_metrics(forecast_results_pickups, forecast_results_dropoff
     print(f"  MAE:           {mae_pickups:.2f}")
     print(f"  RMSE:          {rmse_pickups:.2f}")
     print(f"  R²:            {r2_pickups:.4f}")
-    print(f"  MAPE:          {mape_pickups:.2f}%")
+    print(f"  sMAPE:         {smape_pickups:.2f}%")
     print(f"  Median AE:     {median_ae_pickups:.2f}")
     print(f"  Bias (ME):     {bias_pickups:.2f}")
     print(f"  Std of errors: {std_residuals_pickups:.2f}")
@@ -140,10 +170,10 @@ def evaluate_extended_metrics(forecast_results_pickups, forecast_results_dropoff
         forecast_results_dropoffs['actual'],
         forecast_results_dropoffs['predicted']
     )
-    mape_dropoffs = mean_absolute_percentage_error(
+    smape_dropoffs = smape(
         forecast_results_dropoffs['actual'],
         forecast_results_dropoffs['predicted']
-    ) * 100
+    )
     median_ae_dropoffs = median_absolute_error(
         forecast_results_dropoffs['actual'],
         forecast_results_dropoffs['predicted']
@@ -157,7 +187,7 @@ def evaluate_extended_metrics(forecast_results_pickups, forecast_results_dropoff
     print(f"  MAE:           {mae_dropoffs:.2f}")
     print(f"  RMSE:          {rmse_dropoffs:.2f}")
     print(f"  R²:            {r2_dropoffs:.4f}")
-    print(f"  MAPE:          {mape_dropoffs:.2f}%")
+    print(f"  sMAPE:         {smape_dropoffs:.2f}%")
     print(f"  Median AE:     {median_ae_dropoffs:.2f}")
     print(f"  Bias (ME):     {bias_dropoffs:.2f}")
     print(f"  Std of errors: {std_residuals_dropoffs:.2f}")
@@ -291,7 +321,7 @@ def evaluate_model_complete(forecast_results_pickups, forecast_results_dropoffs,
         Name of the model for display purposes
     """
     # Print basic metrics
-    evaluate_basic_metrics(forecast_results_pickups, forecast_results_dropoffs, model_name)
+    # evaluate_basic_metrics(forecast_results_pickups, forecast_results_dropoffs, model_name)
     
     # Print extended metrics
     evaluate_extended_metrics(forecast_results_pickups, forecast_results_dropoffs, model_name)
@@ -299,3 +329,213 @@ def evaluate_model_complete(forecast_results_pickups, forecast_results_dropoffs,
     # Show visualizations
     plot_actual_vs_predicted(forecast_results_pickups, forecast_results_dropoffs, model_name)
     plot_residuals_distribution(forecast_results_pickups, forecast_results_dropoffs, model_name)
+
+
+def calculate_metrics_dict(forecast_results_pickups, forecast_results_dropoffs):
+    """
+    Calculate all metrics and return as a dictionary.
+    
+    Parameters:
+    -----------
+    forecast_results_pickups : DataFrame
+        DataFrame with 'actual' and 'predicted' columns for pickups
+    forecast_results_dropoffs : DataFrame
+        DataFrame with 'actual' and 'predicted' columns for dropoffs
+    
+    Returns:
+    --------
+    dict: Dictionary with metrics for both pickups and dropoffs
+    """
+    metrics = {}
+    
+    # Pickups metrics
+    metrics['pickups_mae'] = mean_absolute_error(
+        forecast_results_pickups['actual'],
+        forecast_results_pickups['predicted']
+    )
+    metrics['pickups_rmse'] = np.sqrt(mean_squared_error(
+        forecast_results_pickups['actual'],
+        forecast_results_pickups['predicted']
+    ))
+    metrics['pickups_r2'] = r2_score(
+        forecast_results_pickups['actual'],
+        forecast_results_pickups['predicted']
+    )
+    metrics['pickups_smape'] = smape(
+        forecast_results_pickups['actual'],
+        forecast_results_pickups['predicted']
+    )
+    
+    # Dropoffs metrics
+    metrics['dropoffs_mae'] = mean_absolute_error(
+        forecast_results_dropoffs['actual'],
+        forecast_results_dropoffs['predicted']
+    )
+    metrics['dropoffs_rmse'] = np.sqrt(mean_squared_error(
+        forecast_results_dropoffs['actual'],
+        forecast_results_dropoffs['predicted']
+    ))
+    metrics['dropoffs_r2'] = r2_score(
+        forecast_results_dropoffs['actual'],
+        forecast_results_dropoffs['predicted']
+    )
+    metrics['dropoffs_smape'] = smape(
+        forecast_results_dropoffs['actual'],
+        forecast_results_dropoffs['predicted']
+    )
+    
+    return metrics
+
+
+def compare_models(models_dict):
+    """
+    Compare multiple models and display results in a table with visualizations.
+    
+    Parameters:
+    -----------
+    models_dict : dict
+        Dictionary where keys are model names and values are tuples of
+        (forecast_results_pickups, forecast_results_dropoffs)
+        
+        Example:
+        {
+            'Baseline': (pickups_df, dropoffs_df),
+            'SARIMAX': (pickups_df, dropoffs_df),
+            'Prophet': (pickups_df, dropoffs_df)
+        }
+    """
+    print("\n" + "="*70)
+    print("MODEL COMPARISON")
+    print("="*70)
+    
+    # Calculate metrics for all models
+    all_metrics = {}
+    for model_name, (pickups_df, dropoffs_df) in models_dict.items():
+        all_metrics[model_name] = calculate_metrics_dict(pickups_df, dropoffs_df)
+    
+    # Create comparison DataFrames
+    pickups_comparison = pd.DataFrame({
+        model: {
+            'MAE': metrics['pickups_mae'],
+            'RMSE': metrics['pickups_rmse'],
+            'R²': metrics['pickups_r2'],
+            'sMAPE (%)': metrics['pickups_smape']
+        }
+        for model, metrics in all_metrics.items()
+    }).T
+    
+    dropoffs_comparison = pd.DataFrame({
+        model: {
+            'MAE': metrics['dropoffs_mae'],
+            'RMSE': metrics['dropoffs_rmse'],
+            'R²': metrics['dropoffs_r2'],
+            'sMAPE (%)': metrics['dropoffs_smape']
+        }
+        for model, metrics in all_metrics.items()
+    }).T
+    
+    # Print comparison tables
+    print("\n" + "-"*70)
+    print("PICKUPS - MODEL COMPARISON")
+    print("-"*70)
+    print(pickups_comparison.to_string())
+    
+    # Highlight best model for each metric
+    print("\nBest Performance (Pickups):")
+    print(f"  Lowest MAE:   {pickups_comparison['MAE'].idxmin()} ({pickups_comparison['MAE'].min():.2f})")
+    print(f"  Lowest RMSE:  {pickups_comparison['RMSE'].idxmin()} ({pickups_comparison['RMSE'].min():.2f})")
+    print(f"  Highest R²:   {pickups_comparison['R²'].idxmax()} ({pickups_comparison['R²'].max():.4f})")
+    print(f"  Lowest sMAPE: {pickups_comparison['sMAPE (%)'].idxmin()} ({pickups_comparison['sMAPE (%)'].min():.2f}%)")
+    
+    print("\n" + "-"*70)
+    print("DROPOFFS - MODEL COMPARISON")
+    print("-"*70)
+    print(dropoffs_comparison.to_string())
+    
+    # Highlight best model for each metric
+    print("\nBest Performance (Dropoffs):")
+    print(f"  Lowest MAE:   {dropoffs_comparison['MAE'].idxmin()} ({dropoffs_comparison['MAE'].min():.2f})")
+    print(f"  Lowest RMSE:  {dropoffs_comparison['RMSE'].idxmin()} ({dropoffs_comparison['RMSE'].min():.2f})")
+    print(f"  Highest R²:   {dropoffs_comparison['R²'].idxmax()} ({dropoffs_comparison['R²'].max():.4f})")
+    print(f"  Lowest sMAPE: {dropoffs_comparison['sMAPE (%)'].idxmin()} ({dropoffs_comparison['sMAPE (%)'].min():.2f}%)")
+    
+    print("\n" + "="*70)
+    
+    # Visualization 1: Bar charts comparing MAE and RMSE
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+    
+    # Pickups MAE
+    pickups_comparison['MAE'].plot(kind='bar', ax=axes[0, 0], color='steelblue')
+    axes[0, 0].set_title('Pickups - MAE Comparison', fontsize=14, fontweight='bold')
+    axes[0, 0].set_ylabel('MAE', fontsize=12)
+    axes[0, 0].set_xlabel('Model', fontsize=12)
+    axes[0, 0].grid(True, alpha=0.3, axis='y')
+    axes[0, 0].tick_params(axis='x', rotation=45)
+    
+    # Pickups R²
+    pickups_comparison['R²'].plot(kind='bar', ax=axes[0, 1], color='seagreen')
+    axes[0, 1].set_title('Pickups - R² Comparison', fontsize=14, fontweight='bold')
+    axes[0, 1].set_ylabel('R²', fontsize=12)
+    axes[0, 1].set_xlabel('Model', fontsize=12)
+    axes[0, 1].grid(True, alpha=0.3, axis='y')
+    axes[0, 1].tick_params(axis='x', rotation=45)
+    axes[0, 1].set_ylim([0, 1])
+    
+    # Dropoffs MAE
+    dropoffs_comparison['MAE'].plot(kind='bar', ax=axes[1, 0], color='coral')
+    axes[1, 0].set_title('Dropoffs - MAE Comparison', fontsize=14, fontweight='bold')
+    axes[1, 0].set_ylabel('MAE', fontsize=12)
+    axes[1, 0].set_xlabel('Model', fontsize=12)
+    axes[1, 0].grid(True, alpha=0.3, axis='y')
+    axes[1, 0].tick_params(axis='x', rotation=45)
+    
+    # Dropoffs R²
+    dropoffs_comparison['R²'].plot(kind='bar', ax=axes[1, 1], color='mediumpurple')
+    axes[1, 1].set_title('Dropoffs - R² Comparison', fontsize=14, fontweight='bold')
+    axes[1, 1].set_ylabel('R²', fontsize=12)
+    axes[1, 1].set_xlabel('Model', fontsize=12)
+    axes[1, 1].grid(True, alpha=0.3, axis='y')
+    axes[1, 1].tick_params(axis='x', rotation=45)
+    axes[1, 1].set_ylim([0, 1])
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Visualization 2: Grouped bar chart for all metrics
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    
+    # Normalize metrics for better comparison (except R² which is already 0-1)
+    pickups_normalized = pickups_comparison.copy()
+    pickups_normalized['MAE'] = pickups_normalized['MAE'] / pickups_normalized['MAE'].max()
+    pickups_normalized['RMSE'] = pickups_normalized['RMSE'] / pickups_normalized['RMSE'].max()
+    pickups_normalized['sMAPE (%)'] = pickups_normalized['sMAPE (%)'] / pickups_normalized['sMAPE (%)'].max()
+    
+    dropoffs_normalized = dropoffs_comparison.copy()
+    dropoffs_normalized['MAE'] = dropoffs_normalized['MAE'] / dropoffs_normalized['MAE'].max()
+    dropoffs_normalized['RMSE'] = dropoffs_normalized['RMSE'] / dropoffs_normalized['RMSE'].max()
+    dropoffs_normalized['sMAPE (%)'] = dropoffs_normalized['sMAPE (%)'] / dropoffs_normalized['sMAPE (%)'].max()
+    
+    # Pickups - normalized metrics
+    pickups_normalized[['MAE', 'RMSE', 'R²', 'sMAPE (%)']].plot(kind='bar', ax=axes[0])
+    axes[0].set_title('Pickups - Normalized Metrics Comparison\n(Lower is better, except R²)', 
+                     fontsize=14, fontweight='bold')
+    axes[0].set_ylabel('Normalized Score (0-1)', fontsize=12)
+    axes[0].set_xlabel('Model', fontsize=12)
+    axes[0].legend(title='Metric', loc='best')
+    axes[0].grid(True, alpha=0.3, axis='y')
+    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].set_ylim([0, 1.1])
+    
+    # Dropoffs - normalized metrics
+    dropoffs_normalized[['MAE', 'RMSE', 'R²', 'sMAPE (%)']].plot(kind='bar', ax=axes[1])
+    axes[1].set_title('Dropoffs - Normalized Metrics Comparison\n(Lower is better, except R²)', 
+                     fontsize=14, fontweight='bold')
+    axes[1].set_ylabel('Normalized Score (0-1)', fontsize=12)
+    axes[1].set_xlabel('Model', fontsize=12)
+    axes[1].legend(title='Metric', loc='best')
+    axes[1].grid(True, alpha=0.3, axis='y')
+    axes[1].tick_params(axis='x', rotation=45)
+    axes[1].set_ylim([0, 1.1])
+    
+    plt.tight_layout()
+    plt.show()
